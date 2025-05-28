@@ -6,17 +6,23 @@ type PushCodeParams = {
   message: string;
 };
 
-export async function pushCode({ branch, message }: PushCodeParams) {
+export async function pushCode({ branch, message }: { branch: string; message: string }) {
   try {
     log.info(`Pushing code to branch: ${branch}`);
 
     execSync("git add .", { stdio: "inherit" });
+
+    // Check if there is anything to commit
+    const status = execSync("git status --porcelain").toString().trim();
+    if (!status) {
+      log.error("No changes to commit. Working tree clean.");
+      return;
+    }
+
     execSync(`git commit -m "${message}"`, { stdio: "inherit" });
     execSync(`git push origin ${branch}`, { stdio: "inherit" });
-
-    log.success(`Code successfully pushed to '${branch}' with message: "${message}"`);
   } catch (error: any) {
     log.error("Failed to push code.");
-    console.error(error.message || error);
+    log.error(error.message);
   }
 }
