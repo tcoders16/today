@@ -1,19 +1,22 @@
-import { parseCommandFromInput } from "../services/openaiService.js";
-import { createRepo } from "../commands/createRepo.js";
-import { deleteRepo } from "../commands/deleteRepo.js";
-import { createPullRequest } from "../commands/createPullRequest.js";
-import { pushCode } from "../commands/pushCode.js";
-import { listRepos } from "../commands/listRepos.js";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.handleNaturalCommand = handleNaturalCommand;
+const openaiService_1 = require("../services/openaiService");
+const createRepo_1 = require("../commands/createRepo");
+const deleteRepo_1 = require("../commands/deleteRepo");
+const createPullRequest_1 = require("../commands/createPullRequest");
+const pushCode_1 = require("../commands/pushCode");
+const listRepos_1 = require("../commands/listRepos");
 /**
  * Handles natural language GitHub commands.
  * - Parses user input via OpenAI
- * - Determines if it's an action or a query
+ * - Determines if it's an action or a query, question
  * - Executes GitHub-related commands if it's an actionable input
  */
-export async function handleNaturalCommand(input) {
+async function handleNaturalCommand(input) {
     console.log("Processing command:", input);
     // Step 1: Parse the user's input via OpenAI classification
-    const parsed = await parseCommandFromInput(input);
+    const parsed = await (0, openaiService_1.parseCommandFromInput)(input);
     // Step 2: If it's a natural language query, return early (OpenAI will already display the response)
     if (parsed?.type === "query")
         return;
@@ -42,7 +45,7 @@ export async function handleNaturalCommand(input) {
                 console.error("Missing repository name.");
                 return;
             }
-            await createRepo({
+            await (0, createRepo_1.createRepo)({
                 name: parsed.name,
                 private: parsed.private ?? false,
             });
@@ -52,7 +55,7 @@ export async function handleNaturalCommand(input) {
                 console.error("Missing 'owner' or 'repo' field.");
                 return;
             }
-            await deleteRepo({
+            await (0, deleteRepo_1.deleteRepo)({
                 owner: parsed.owner,
                 repo: parsed.repo,
             });
@@ -62,7 +65,7 @@ export async function handleNaturalCommand(input) {
                 console.error("Missing required fields: owner, repo, head, base, or title.");
                 return;
             }
-            await createPullRequest({
+            await (0, createPullRequest_1.createPullRequest)({
                 owner: parsed.owner,
                 repo: parsed.repo,
                 title: parsed.title,
@@ -76,7 +79,7 @@ export async function handleNaturalCommand(input) {
                 console.error("Missing 'branch' or 'message'.");
                 return;
             }
-            await pushCode({
+            await (0, pushCode_1.pushCode)({
                 branch: parsed.branch,
                 message: parsed.message,
             });
@@ -86,7 +89,7 @@ export async function handleNaturalCommand(input) {
                 console.error("Missing 'owner' field.");
                 return;
             }
-            await listRepos({
+            await (0, listRepos_1.listRepos)({
                 owner: parsed.owner,
             });
             break;

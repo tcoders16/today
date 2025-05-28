@@ -1,14 +1,13 @@
 #!/usr/bin/env node
 
-import { Command } from 'commander';
-import { handleNaturalCommand } from '../src/index.js';
-import figlet from 'figlet';
-import chalk from 'chalk';
-import boxen from 'boxen';
-import gradient from 'gradient-string';
-import dayjs from 'dayjs';
-import { execSync } from "child_process";
-
+const { Command } = require('commander');
+const { handleNaturalCommand } = require('../src/index.js');
+const figlet = require('figlet');
+const chalk = require('chalk');
+const boxen = require('boxen');
+const gradient = require('gradient-string');
+const dayjs = require('dayjs');
+const { execSync } = require("child_process");
 
 function showImage() {
   try {
@@ -18,26 +17,18 @@ function showImage() {
   }
 }
 
-showImage();
-
-
 function showBanner() {
   const asciiArt = figlet.textSync("Om's GitHub AiAgent", {
-    horizontalLayout: 'fitted', // changed from 'full' to 'fitted' for better wrapping
+    horizontalLayout: 'fitted',
     verticalLayout: 'default',
   });
-
-  // ...existing code...
   const gradientTitle = chalk.blueBright(asciiArt);
-  // ...existing code...
-
   const boxedTitle = boxen(gradientTitle, {
     padding: 1,
     margin: 1,
     borderColor: 'magenta',
     borderStyle: 'round',
   });
-
   console.clear();
   console.log(boxedTitle);
 
@@ -89,27 +80,6 @@ Om-Gitcli "create a private repo named test-bot"
 
   console.log(); // Spacer
 }
-
-const program = new Command();
-
-showBanner();
-
-program
-  .name('Om-Gitcli')
-  .description('An AI-powered GitHub CLI by Omkumar')
-  .version('1.0.0')
-  .argument('<input>', 'Natural language GitHub command')
-  .action(async (input) => {
-    console.log(chalk.yellow("\n🛠 CLI received command:"), chalk.whiteBright(input));
-    try {
-      await handleNaturalCommand(input);
-    } catch (error: any) {
-      console.error(chalk.redBright('Error:'), error.message);
-    }
-  });
-
-program.parse();
-
 
 function getIntroMessage(): string {
   const now = dayjs();
@@ -182,4 +152,30 @@ function getIntroMessage(): string {
     backgroundColor: "black"
   });
 }
-console.log(getIntroMessage());
+
+// Only show intro UI if no command is provided
+if (process.argv.length <= 2) {
+  showImage();
+  showBanner();
+  console.log(getIntroMessage());
+  process.exit(0);
+}
+
+// Otherwise, run the CLI as normal
+const program = new Command();
+
+program
+  .name('Om-Gitcli')
+  .description('An AI-powered GitHub CLI by Omkumar')
+  .version('1.0.0')
+  .argument('<input>', 'Natural language GitHub command')
+  .action(async (input: string) => {
+    console.log(chalk.yellow("\n🛠 CLI received command:"), chalk.whiteBright(input));
+    try {
+      await handleNaturalCommand(input);
+    } catch (error: any) {
+      console.error(chalk.redBright('Error:'), error.message);
+    }
+  });
+
+program.parse();

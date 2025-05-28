@@ -1,5 +1,5 @@
-import dotenv from "dotenv";
-import OpenAI from "openai";
+const dotenv = require("dotenv");
+const OpenAI = require("openai");
 
 dotenv.config();
 

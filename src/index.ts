@@ -8,7 +8,7 @@ import { listRepos } from "../commands/listRepos";
 /**
  * Handles natural language GitHub commands.
  * - Parses user input via OpenAI
- * - Determines if it's an action or a query
+ * - Determines if it's an action or a query, question
  * - Executes GitHub-related commands if it's an actionable input
  */
 export async function handleNaturalCommand(input: string) {

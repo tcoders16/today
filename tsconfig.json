@@ -114,20 +114,13 @@
 
 {
   "compilerOptions": {
-    "target": "ES2020",                        // ✅ Good for async/await + modern JS
-    "module": "ESNext",                        // ✅ Output ES Modules (for import/export)
-    "moduleResolution": "bundler",             // ✅ Required for allowing `.js` in imports
-    "rootDir": "./",                           // ✅ Fine (will use bin/ and src/)
-    "outDir": "./dist",                        // ✅ Output compiled .js files here
-    "esModuleInterop": true,                   // ✅ Allow default imports from CJS libs
-    "resolveJsonModule": true,                 // ✅ Required if importing .json files
-    "strict": true,                            // ✅ Enable type safety
-    "skipLibCheck": true,                      // ✅ Speeds up compilation
-    "forceConsistentCasingInFileNames": true,  // ✅ Cross-platform filename safety
-    "allowImportingTsExtensions": true,        // ✅ Allows you to write `import "./a.js"` in TS
-    "noEmit": false,
-    "types": ["node"]
-                             // ✅ Must be false to actually emit `.js` files
+    "module": "commonjs",
+    "target": "ES2020",
+    "outDir": "./dist",
+    "rootDir": "./",
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true
   },
   "include": ["src/**/*", "bin/**/*"]
 }
