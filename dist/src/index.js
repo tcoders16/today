@@ -4,6 +4,21 @@ import { deleteRepo } from "../commands/deleteRepo.js";
 import { createPullRequest } from "../commands/createPullRequest.js";
 import { pushCode } from "../commands/pushCode.js";
 import { listRepos } from "../commands/listRepos.js";
+import { createBranch } from "../commands/branchRequest.js";
+
+
+
+
+
+
+
+// import { parseCommandFromInput } from "../services/openaiService.js";
+// import { createRepo } from "../commands/createRepo.js";
+// import { deleteRepo } from "../commands/deleteRepo.js";
+// import { createPullRequest } from "../commands/createPullRequest.js";
+// import { pushCode } from "../commands/pushCode.js";
+// import { listRepos } from "../commands/listRepos.js";
+// import { createBranch } from "../commands/branchRequest.js";
 /**
  * Handles natural language GitHub commands.
  * - Parses user input via OpenAI
@@ -28,7 +43,8 @@ export async function handleNaturalCommand(input) {
         "deleteRepo",
         "createPullRequest",
         "pushCode",
-        "listRepos"
+        "listRepos",
+        "createBranch"
     ];
     if (!supportedActions.includes(parsed.action)) {
         console.error("Unsupported action:", parsed.action);
@@ -88,6 +104,18 @@ export async function handleNaturalCommand(input) {
             }
             await listRepos({
                 owner: parsed.owner,
+            });
+            break;
+        case "createBranch":
+            if (!parsed.owner || !parsed.repo || !parsed.newBranch) {
+                console.error("Missing required fields: 'owner', 'repo', or 'newBranch'.");
+                return;
+            }
+            await createBranch({
+                owner: parsed.owner,
+                repo: parsed.repo,
+                newBranch: parsed.newBranch,
+                sourceBranch: parsed.sourceBranch || "main", // optional fallback
             });
             break;
         default:
