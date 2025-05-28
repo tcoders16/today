@@ -1,13 +1,11 @@
 #!/usr/bin/env node
-"use strict";
-const { Command } = require('commander');
-const { handleNaturalCommand } = require('../src/index.js');
-const figlet = require('figlet');
-const chalk = require('chalk');
-const boxen = require('boxen');
-const gradient = require('gradient-string');
-const dayjs = require('dayjs');
-const { execSync } = require("child_process");
+import { Command } from 'commander';
+import { handleNaturalCommand } from '../src/index.js';
+import figlet from 'figlet';
+import chalk from 'chalk';
+import boxen from 'boxen';
+import dayjs from 'dayjs';
+import { execSync } from "child_process";
 function showImage() {
     try {
         execSync(`catimg ../assets/kl.png`, { stdio: 'inherit' }); // Put your image here

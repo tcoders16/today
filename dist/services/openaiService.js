@@ -1,13 +1,10 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.parseCommandFromInput = parseCommandFromInput;
-const dotenv = require("dotenv");
-const OpenAI = require("openai");
+import dotenv from "dotenv";
+import OpenAI from "openai";
 dotenv.config();
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
-async function parseCommandFromInput(input) {
+export async function parseCommandFromInput(input) {
     const systemPrompt = `
       You are a backend AI parser that converts natural language GitHub-related commands into structured JSON instructions.
 

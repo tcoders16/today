@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
-const { Command } = require('commander');
-const { handleNaturalCommand } = require('../src/index.js');
-const figlet = require('figlet');
-const chalk = require('chalk');
-const boxen = require('boxen');
-const gradient = require('gradient-string');
-const dayjs = require('dayjs');
-const { execSync } = require("child_process");
+import { Command } from 'commander';
+import { handleNaturalCommand } from '../src/index.js';
+import figlet from 'figlet';
+import chalk from 'chalk';
+import boxen from 'boxen';
+import gradient from 'gradient-string';
+import dayjs from 'dayjs';
+import { execSync } from "child_process";
 
 function showImage() {
   try {
@@ -169,7 +169,7 @@ program
   .description('An AI-powered GitHub CLI by Omkumar')
   .version('1.0.0')
   .argument('<input>', 'Natural language GitHub command')
-  .action(async (input: string) => {
+  .action(async (input) => {
     console.log(chalk.yellow("\n🛠 CLI received command:"), chalk.whiteBright(input));
     try {
       await handleNaturalCommand(input);
