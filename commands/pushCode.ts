@@ -1,6 +1,9 @@
 import { execSync } from "child_process";
 import { log } from "../utils/logger.js";
 
+// Change this to your new remote repository URL
+const REMOTE_REPO = "https://github.com/tcoders16/today";
+
 export async function pushCode({ branch, message }: { branch: string; message: string }) {
   try {
     // Sanitize branch name
@@ -26,6 +29,10 @@ export async function pushCode({ branch, message }: { branch: string; message: s
     execSync(`git checkout ${safeBranch}`, { stdio: "inherit" });
 
     execSync(`git commit -m "${message}"`, { stdio: "inherit" });
+
+    // Set the new remote before pushing
+    execSync(`git remote set-url origin ${REMOTE_REPO}`, { stdio: "inherit" });
+
     execSync(`git push origin ${safeBranch}`, { stdio: "inherit" });
   } catch (error: any) {
     log.error("Failed to push code.");
