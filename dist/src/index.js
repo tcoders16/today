@@ -1,17 +1,17 @@
 import { parseCommandFromInput } from "../services/openaiService.js";
 import { createRepo } from "../commands/createRepo.js";
-import { deleteRepo } from "../commands/deleteRepo.js";
+// import { deleteRepo } from "../commands/deleteRepo";
 import { createPullRequest } from "../commands/createPullRequest.js";
 import { pushCode } from "../commands/pushCode.js";
 import { listRepos } from "../commands/listRepos.js";
 import { createBranch } from "../commands/branchRequest.js";
-
-
-
-
-
-
-
+import { lookOverRequest } from "../commands/lookOverRequest.js";
+import { getLatestPullNumber } from "../commands/getLatestPullNumber.js";
+import { listFilesInRepo } from "../commands/listFilesInRepo.js";
+import { readCodeFileFromRepo } from "../commands/readCodeFileFromRepo.js";
+import { handleCodeAnalysis } from "../services/fetchCodeFromGithub.js";
+import { analyzeFile } from "../commands/analyzeFile.js";
+import { answerGeneralQuestion } from "../services/answerGeneralQuestion.js";
 // import { parseCommandFromInput } from "../services/openaiService.js";
 // import { createRepo } from "../commands/createRepo.js";
 // import { deleteRepo } from "../commands/deleteRepo.js";
@@ -40,15 +40,19 @@ export async function handleNaturalCommand(input) {
     // Step 4: Validate that the action is supported
     const supportedActions = [
         "createRepo",
-        "deleteRepo",
+        // "deleteRepo",
         "createPullRequest",
         "pushCode",
         "listRepos",
-        "createBranch"
+        "createBranch",
+        "lookOverRequest",
+        "listFilesInRepo",
+        "readCodeFileFromRepo",
+        "analyzeFile"
     ];
     if (!supportedActions.includes(parsed.action)) {
         console.error("Unsupported action:", parsed.action);
-        console.log("Supported actions: createRepo, deleteRepo, createPullRequest, pushCode, listRepos.");
+        console.log("Supported actions: createRepo, deleteRepo, createPullRequest, pushCode, listRepos, createBranch, lookOverRequest, analyzeFile");
         return;
     }
     // Step 5: Execute the corresponding command based on parsed.action
@@ -63,16 +67,16 @@ export async function handleNaturalCommand(input) {
                 private: parsed.private ?? false,
             });
             break;
-        case "deleteRepo":
-            if (!parsed.owner || !parsed.repo) {
-                console.error("Missing 'owner' or 'repo' field.");
-                return;
-            }
-            await deleteRepo({
-                owner: parsed.owner,
-                repo: parsed.repo,
-            });
-            break;
+        // case "deleteRepo":
+        //   if (!parsed.owner || !parsed.repo) {
+        //     console.error("Missing 'owner' or 'repo' field.");
+        //     return;
+        //   }
+        //   await deleteRepo({
+        //     owner: parsed.owner,
+        //     repo: parsed.repo,
+        //   });
+        //   break;
         case "createPullRequest":
             if (!parsed.owner || !parsed.repo || !parsed.head || !parsed.base || !parsed.title) {
                 console.error("Missing required fields: owner, repo, head, base, or title.");
@@ -118,8 +122,79 @@ export async function handleNaturalCommand(input) {
                 sourceBranch: parsed.sourceBranch || "main", // optional fallback
             });
             break;
-        default:
-            console.error("Unrecognized action:", parsed.action);
+        case "lookOverRequest":
+            if (!parsed.owner || !parsed.repo) {
+                console.error("Missing 'owner' or 'repo' field.");
+                return;
+            }
+            const pullNumber = parsed.pullNumber ||
+                (await getLatestPullNumber(parsed.owner, parsed.repo));
+            if (!pullNumber) {
+                console.error("Could not determine pull request number.");
+                return;
+            }
+            await lookOverRequest({
+                owner: parsed.owner,
+                repo: parsed.repo,
+                pullNumber,
+                comment: parsed.comment || "",
+            });
             break;
+        case "listFilesInRepo":
+            if (!parsed.owner || !parsed.repo) {
+                console.error("Missing 'owner' or 'repo' field.");
+                return;
+            }
+            await listFilesInRepo({
+                owner: parsed.owner,
+                repo: parsed.repo,
+                branch: parsed.branch || "main",
+                path: parsed.path || "", // Optional: root path by default
+            });
+            break;
+        case "readCodeFileFromRepo":
+            if (!parsed.owner || !parsed.repo || !parsed.path) {
+                console.error("Missing owner, repo, or file path.");
+                return;
+            }
+            await readCodeFileFromRepo({
+                owner: parsed.owner,
+                repo: parsed.repo,
+                path: parsed.path,
+                branch: parsed.branch || "main",
+            });
+            break;
+        case "handleCodeAnalysis":
+            if (!parsed.owner || !parsed.repo || !parsed.path) {
+                console.error("Missing required fields: owner, repo, or path.");
+                return;
+            }
+            await handleCodeAnalysis({
+                owner: parsed.owner,
+                repo: parsed.repo,
+                path: parsed.path,
+                branch: parsed.branch || "main",
+                question: parsed.question || "Please analyze this code."
+            });
+            break;
+        // Inside the switch (parsed.action):
+        case "analyzeFile":
+            if (!parsed.owner || !parsed.repo || !parsed.path || !parsed.mode) {
+                console.error("Missing required fields: owner, repo, path, or mode.");
+                return;
+            }
+            await analyzeFile({
+                owner: parsed.owner,
+                repo: parsed.repo,
+                path: parsed.path,
+                branch: parsed.branch ?? "main",
+                mode: parsed.mode,
+                functionName: parsed.functionName // only used if mode === "function"
+            });
+            break;
+        default:
+            console.warn("Unrecognized action or general query. Passing to AI Assistant...\n");
+            await answerGeneralQuestion(input);
+            return;
     }
 }
